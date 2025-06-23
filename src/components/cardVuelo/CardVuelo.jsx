@@ -1,7 +1,9 @@
 import React from "react";
 import { format, parseISO } from "date-fns";
+import { useSelector } from "react-redux";
 
 const CardVuelo = ({ vuelo, pos }) => {
+  const { money } = useSelector(state => state.countryReducer);
   const isCombo = vuelo.ida && vuelo.vuelta;
 
   const renderTramo = (data, label) => {
@@ -38,7 +40,7 @@ const CardVuelo = ({ vuelo, pos }) => {
     : vuelo.precio.formato;
 
   return (
-    <div className="w-full rounded-3xl shadow-md bg-white border border-gray-300 relative">
+    <div className={`w-full rounded-3xl shadow-md bg-white border border-gray-300 relative ${pos == -1 ? " border-2 border-green-500":""}`}>
       {pos === 0 && (
         <div className="absolute rounded-tr-3xl top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
           $ Mejor precio
@@ -59,8 +61,18 @@ const CardVuelo = ({ vuelo, pos }) => {
 
         <hr className="mb-2" />
 
-        <div className="text-center text-2xl font-bold text-black">
-          {precio}
+        <div className="flex items-center justify-center w-full">
+          <span className="text-xl font-bold text-black">
+            {vuelo.precio?.total ? `${money} ${vuelo.precio?.total.toLocaleString('es-CO')} ` : `${money} ${vuelo.precio.formato} `}
+          </span>
+          {vuelo.tipoServicio && (
+            <span className={`ml-4 px-4 py-1 text-sm rounded-lg text-white capitalize ${vuelo.tipoServicio == "Flex" ? "bg-[#ff5c00]" : vuelo.tipoServicio == "Classic" ? "bg-[#b50080]": "bg-red-500"}`}>
+              {vuelo.tipoServicio}
+            </span>
+          )}
+        </div>
+        <div className="w-full flex justify-center">
+          <span className="text-[13px] text-gray-400">Precio por pasajero</span>
         </div>
       </div>
     </div>

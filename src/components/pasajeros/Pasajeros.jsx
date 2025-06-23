@@ -5,12 +5,38 @@ import { cantidadPasajeros } from "../../store/action/homeAction";
 
 const Pasajeros = ({ close, back, selectPasajero }) => {
   const dispatch = useDispatch()
+  const [error, setError] = useState(null)
   const [cantidades, setCantidades] = useState({
     adultos: 1,
     jovenes: 0,
     ninos: 0,
     bebes: 0,
   });
+
+  
+
+  const totalPasajeros =
+    cantidades.adultos +
+    cantidades.jovenes +
+    cantidades.ninos +
+    cantidades.bebes;
+
+    
+  const handleConfirmar = () => {
+    if (totalPasajeros > 0) {
+      dispatch(cantidadPasajeros({
+        totalPasajeros,
+        pasaAdulto: cantidades.adultos,
+        pasaBebe: cantidades.bebes,
+        pasaJovenes: cantidades.jovenes,
+        pasaNinos: cantidades.ninos
+      }))
+      setError(null) // Limpiar error si había
+      selectPasajero()
+    } else {
+      setError("Debes seleccionar al menos un pasajero para continuar.")
+    }
+  }
 
   const cambiarCantidad = (tipo, operacion) => {
     setCantidades((prev) => {
@@ -19,20 +45,13 @@ const Pasajeros = ({ close, back, selectPasajero }) => {
           ? prev[tipo] + 1
           : Math.max(0, prev[tipo] - 1);
 
+      if (error && totalPasajeros > 0) {
+        setError(null);
+      }
+
       return { ...prev, [tipo]: nuevaCantidad };
     });
-  };
-
-  const totalPasajeros =
-    cantidades.adultos +
-    cantidades.jovenes +
-    cantidades.ninos +
-    cantidades.bebes;
-
-    const handleConfirmar = ()=>{
-      dispatch(cantidadPasajeros({totalPasajeros:totalPasajeros, pasaAdulto:cantidades.adultos, pasaBebe:cantidades.bebes, pasaJovenes:cantidades.jovenes, pasaNinos:cantidades.ninos}))
-      selectPasajero()
-    }
+  }
 
   return (
     <div className="fixed top-0 w-full h-screen bg-white bg-opacity-50 flex  z-50">
@@ -96,24 +115,33 @@ const Pasajeros = ({ close, back, selectPasajero }) => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => cambiarCantidad(key, "restar")}
-                    className="w-7 h-7 flex items-center justify-center border border-gray-400 rounded-full text-xl"
+                    className="text-black"
                   >
-                    –
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                      <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+
                   </button>
                   <span className="w-5 text-center font-medium">
                     {cantidades[key]}
                   </span>
                   <button
                     onClick={() => cambiarCantidad(key, "sumar")}
-                    className="w-7 h-7 flex items-center justify-center border border-gray-400 rounded-full text-xl"
+                    className="text-black"
                   >
-                    +
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                      <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+
                   </button>
                 </div>
               </div>
             ))}
           </div>
-
+          {error && <span className="text-red-600 font-semibold text-center my-2 text-[14px]">{error}</span>}
           {/* Botón Confirmar */}
           <div className="w-[90%]">
             <button onClick={() => handleConfirmar()} className="w-full bg-black text-white py-2 rounded-full font-semibold hover:bg-gray-800 transition">

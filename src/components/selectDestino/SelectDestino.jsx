@@ -63,6 +63,7 @@ const SelectDestino = ({close, select, back, onSelected, clDestino, fecha})=>{
           <div className="border border-gray-300 rounded-lg flex items-center px-4 py-3 focus-within:ring-2 focus-within:ring-green-500 gap-x-3.5">
             <img src={select == "Origen" ? oriIcon : desIcon} className="w-5 h-8 object-contain" alt="" />
             <input
+              autoFocus
               type="text"
               placeholder={select}
               value={origenInput || ""}

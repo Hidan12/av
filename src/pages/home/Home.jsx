@@ -45,8 +45,7 @@ const Home = ()=>{
         {!cargando ? 
           (
             <div className="flex w-full flex-col items-center">
-              {}
-              {btnBuscar && <Buscar closeModal={handlerCloseBuscar}/>}
+              {btnBuscar && <Buscar closeModal={handlerCloseBuscar} clickSelect={btnSelect}/>}
               <div className="w-full h-[50vh] flex  justify-center bg-cover bg-center" style={{ backgroundImage: `url(${bgImg})` }}>
                 <div className="w-[90%] flex flex-col mt-4 bg-white/50 items-center   rounded-[15px]">
                 <div className="w-[80%] h-[8vh] my-4 gap-x-5  bg-white px-4 py-3 flex rounded-[50px]">

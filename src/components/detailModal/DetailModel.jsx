@@ -3,7 +3,7 @@ import oriIcon from "../../assets/svg/takeoff_icon.png"
 import desIcon from "../../assets/svg/landing_icon.png"
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { tipoViaje } from "../../store/action/homeAction";
+import { fechaRegreso, tipoViaje } from "../../store/action/homeAction";
 import { format } from "date-fns";
 import { SelectDestino } from "../selectDestino/SelectDestino";
 import { FechaModal } from "../fechaModal/FechaModal";
@@ -28,7 +28,15 @@ const DetailModel = ({back})=>{
     const [selectFecha, setSelectFecha] = useState("")
     const {origin, destino, tipViaje, fechPartida, fechRegreso, cantPasajeros} = useSelector(state => state.reducerHome)
 
-    
+    //tipo de viaje
+    const handlerTipoViaje = (value)=>{
+        if(value == "ida"){
+            dispatch(tipoViaje(value))
+            dispatch(fechaRegreso(null))
+        }else{
+            dispatch(tipoViaje(value))
+        }
+    }    
     
     //origen
     const handleSelectOrigen = () => {
@@ -113,11 +121,11 @@ const DetailModel = ({back})=>{
                     <div className="w-[90%] flex justify-center items-center">
                         <div className="w-[80%] h-[8vh] shadow-2xl my-4 gap-x-5  bg-white px-4 py-3 flex rounded-[50px]">
                             <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="tipo-viaje" value="idaYVuelta" checked={tipViaje === "idaYVuelta"} onChange={(e) => dispatch(tipoViaje(e.target.value))} className="w-5 h-5 appearance-none rounded-full border-1 border-black bg-white  checked:bg-white checked:w-3 checked:h-3 checked:border-green-600 checked:ring-4 checked:ring-green-600"/>
+                                <input type="radio" name="tipo-viaje" value="idaYVuelta" checked={tipViaje === "idaYVuelta"} onChange={(e) => handlerTipoViaje(e.target.value)} className={`appearance-none rounded-full border-1 border-black bg-white  ${tipViaje == "idaYVuelta" ? "bg-white w-3 h-3 border-green-600 ring-4 ring-green-600": "w-5 h-5"}`}/>
                                 <span className={`text-black text-[13px] ${tipViaje == "idaYVuelta" ? "font-bold" : "font-normal"}`}>Ida y vuelta</span>
                             </label>
                             <label className="flex items-center gap-2 cursor-pointer">
-                                <input type="radio" name="tipo-viaje" value="ida" checked={tipViaje === "ida"} onChange={(e) => dispatch(tipoViaje(e.target.value))} className="w-5 h-5 appearance-none rounded-full border-1 border-black bg-white  checked:bg-white checked:w-3 checked:h-3 checked:border-green-600 checked:ring-4 checked:ring-green-600"/>
+                                <input type="radio" name="tipo-viaje" value="ida" checked={tipViaje === "ida"} onChange={(e) => handlerTipoViaje(e.target.value)} className={`appearance-none rounded-full border-1 border-black bg-white  ${tipViaje == "ida" ? "bg-white w-3 h-3 border-green-600 ring-4 ring-green-600": "w-5 h-5"}`}/>
                                 <span className={`text-black text-[13px] ${tipViaje == "ida" ? "font-bold" : "font-normal"}`}>Solo ida</span>
                             </label>
                         </div>

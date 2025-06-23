@@ -1,6 +1,3 @@
-// Este archivo incluye todo el flujo para ida y vuelta con selección de tipo de tarifa
-// y renderizado progresivo de ida -> selección -> vuelta -> selección -> resumen
-
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -14,6 +11,7 @@ import { setPrecio } from "../../store/action/homeAction";
 import { FechaModal } from "../../components/fechaModal/FechaModal";
 import oriIcon from "../../assets/svg/takeoff_icon.png";
 import desIcon from "../../assets/svg/landing_icon.png";
+import SelectorTarifa from "../../components/selectorTarifa/SelectorTarifa";
 
 const URL = "https://av.procesosrecuperacion.online/api/flights/search/avianca";
 
@@ -32,8 +30,9 @@ const Viaje = () => {
   const [modalTarifa, setModalTarifa] = useState(null); // contiene { vuelo, tipo: 'ida' | 'vuelta' }
 
   const handlerCompra = () => {
-    dispatch(setPrecio(vueloIdaSeleccionado.precio.total + vueloVueltaSeleccionado.precio.total));
-    navigate("/compra");
+        const total = vueloIdaSeleccionado.precio.total + (vueloVueltaSeleccionado?.precio?.total || 0)
+        dispatch(setPrecio(total));
+        navigate("/compra");
   };
 
   useEffect(() => {
@@ -56,6 +55,10 @@ const Viaje = () => {
 
     axios.post(URL, body, { headers: { "Content-Type": "application/json" } })
       .then(({ data }) => {
+        console.log(data.data);
+        console.log(tipViaje);
+        
+        
         setViajes(data.data);
         setLoad(false);
       });
@@ -68,7 +71,7 @@ const Viaje = () => {
     <div className="w-full flex flex-col items-center">
       {load && <Loading />}
       {modalTarifa && (
-        <FareSelectionModal
+        <SelectorTarifa
           vuelo={modalTarifa.vuelo}
           tipo={modalTarifa.tipo}
           onClose={() => setModalTarifa(null)}
@@ -131,7 +134,7 @@ const Viaje = () => {
               </div>
             )}
 
-            {vueloIdaSeleccionado && !vueloVueltaSeleccionado && (
+            {vueloIdaSeleccionado && !tipViaje == "ida" && !vueloVueltaSeleccionado && (
               <div className="w-[90%]">
                 <h2 className="text-xl font-semibold mb-2">Vuelo de ida seleccionado</h2>
                 <CardVuelo vuelo={vueloIdaSeleccionado} pos={-1} />
@@ -145,7 +148,7 @@ const Viaje = () => {
               </div>
             )}
 
-            {vueloIdaSeleccionado && vueloVueltaSeleccionado && (
+            {vueloIdaSeleccionado && !tipViaje == "ida" && vueloVueltaSeleccionado && (
               <div className="w-[90%] space-y-4">
                 <h2 className="text-xl font-semibold">Resumen de tu viaje</h2>
                 <CardVuelo vuelo={vueloIdaSeleccionado} pos={-1} />
@@ -158,6 +161,16 @@ const Viaje = () => {
                 </button>
               </div>
             )}
+
+            {vueloIdaSeleccionado && tipViaje == "ida" &&
+                <div className="w-[90%] space-y-4">
+                <h2 className="text-xl font-semibold">Resumen de tu viaje</h2>
+                <CardVuelo vuelo={vueloIdaSeleccionado} pos={-1} />
+                <button onClick={handlerCompra} className="bg-black text-white w-full py-3 rounded-xl text-lg font-semibold">
+                  Comprar
+                </button>
+              </div>
+            }
           </div>
         </div>
       )}

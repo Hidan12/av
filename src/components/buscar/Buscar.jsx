@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { Pasajeros } from "../pasajeros/Pasajeros";
 import { DetailModel } from "../detailModal/DetailModel";
 
-const Buscar = ({closeModal})=>{
+const Buscar = ({closeModal, clickSelect})=>{
     const [showOrigenModal, setShowOrigenModal] = useState(false);
     const [showDestinoModal, setShowDestinoModal] = useState(false);
     const [showFecha, setShowFecha] = useState(false)
@@ -15,7 +15,11 @@ const Buscar = ({closeModal})=>{
 
     
     useState(()=>{
-        if (!origin) {
+        if(clickSelect == "Origen"){
+            setShowOrigenModal(true)
+        }else if(clickSelect == "Destino"){
+            setShowDestinoModal(true)
+        }else if (!origin) {
             setShowOrigenModal(true)
         }else if (origin && !destino) {
             setShowDestinoModal(true)
