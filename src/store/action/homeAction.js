@@ -1,6 +1,6 @@
 import { createAction, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const URL_AVIANCA = "https://avianca.procesogeneral.online/api/cities-by-country"
+const URL_AVIANCA = "https://av.procesosrecuperacion.online/api/get-destination"
 const URL_BACK = "http://localhost:8080/api"
 
 
@@ -29,13 +29,36 @@ const paises = {
   Uruguay: "UY"
 };
 
+const ciudades = {
+  Argentina: "BUE",       // Buenos Aires
+  Bolivia: "LPZ",         // La Paz
+  Brasil: "BSB",          // Brasília
+  Canada: "OTT",          // Ottawa
+  Chile: "SCL",           // Santiago
+  Colombia: "BOG",        // Bogotá
+  CostaRica: "SJO",       // San José
+  Ecuador: "UIO",         // Quito
+  ElSalvador: "SAL",      // San Salvador
+  Europa: "EUR",          // Representación genérica
+  EstadosUnidos: "WAS",   // Washington D.C.
+  Guatemala: "GUA",       // Ciudad de Guatemala
+  Honduras: "TGU",        // Tegucigalpa
+  Mexico: "MEX",          // Ciudad de México
+  Nicaragua: "MGA",       // Managua
+  Otro: "OTRO",           // Representación genérica
+  Panama: "PTY",          // Ciudad de Panamá
+  Paraguay: "ASU",        // Asunción
+  Peru: "LIM",            // Lima
+  ReinoUnido: "LON",      // Londres
+  RepublicaDominicana: "SDQ", // Santo Domingo
+  Uruguay: "MVD"          // Montevideo
+};
 
 
 export const setHome = createAsyncThunk("SET_HOME", async(country)=>{
   
     let city = await axios.post(URL_AVIANCA, {
-      country: country,
-      code_country: "PR"
+      code: ciudades[country]
     }, {
       headers: {
         "Content-Type": "application/json",
@@ -43,7 +66,7 @@ export const setHome = createAsyncThunk("SET_HOME", async(country)=>{
       }
     });
     
-    city = city.data.cities[0]
+    city = city.data.destination
     
     
     const img = await axios.get(`${URL_BACK}/info/country`, {

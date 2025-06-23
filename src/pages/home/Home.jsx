@@ -11,6 +11,7 @@ import { FechaModal } from "../../components/fechaModal/FechaModal"
 import { countryMoney } from "../../store/action/countryAction"
 import { Loading } from "../../components/loading/Loading"
 import axios from "axios"
+import { Buscar } from "../../components/buscar/Buscar"
 
 
 const UrlUbicacion = "http://localhost:8080/api"
@@ -18,28 +19,15 @@ const UrlUbicacion = "http://localhost:8080/api"
 const Home = ()=>{
   const dispatch = useDispatch()
   const [btnSelect, setBtnSelect] = useState("")
-  const [showOrigenModal, setShowOrigenModal] = useState(false);
-  const [showDestinoModal, setShowDestinoModal] = useState(false);
-  const [showFecha, setShowFecha] = useState(false)
+  const [btnBuscar, setBtnBuscar] = useState(false)
   
   const {origin, img, destino, tipViaje, cargando} = useSelector(state => state.reducerHome)
   
-  const handleSelectOrigen = () => setShowOrigenModal(true);
-
-  const handleCloseOrigen = () => {
-    setShowOrigenModal(false);
-    setShowDestinoModal(true); // abrir modal destino al cerrar origen
-  };
-
-  const handleCloseDestino = () => {
-    setShowDestinoModal(false); // cerrar todo
-  };
+  const handlerCloseBuscar = ()=> {
+    setBtnBuscar(c => c = !c)
+  }
   const handlerBuscar = ()=>{
-    if (destino && origin) {
-      setShowFecha(true)
-    }else{
-      setShowDestinoModal(true)
-    }
+    setBtnBuscar(true)
   }
 
   useEffect(() => {
@@ -57,14 +45,8 @@ const Home = ()=>{
         {!cargando ? 
           (
             <div className="flex w-full flex-col items-center">
-              {showOrigenModal && (
-                <SelectDestino close={setShowOrigenModal} select="Origen" onSelected={handleCloseOrigen} />
-              )}
-
-              {showDestinoModal && (
-                <SelectDestino close={setShowDestinoModal} select="Destino" onSelected={handleCloseDestino} clDestino={setShowDestinoModal} fecha={setShowFecha}/>
-              )}
-              {showFecha && destino && <FechaModal close={setShowFecha}/>}
+              {}
+              {btnBuscar && <Buscar closeModal={handlerCloseBuscar}/>}
               <div className="w-full h-[50vh] flex  justify-center bg-cover bg-center" style={{ backgroundImage: `url(${bgImg})` }}>
                 <div className="w-[90%] flex flex-col mt-4 bg-white/50 items-center   rounded-[15px]">
                 <div className="w-[80%] h-[8vh] my-4 gap-x-5  bg-white px-4 py-3 flex rounded-[50px]">
@@ -75,11 +57,11 @@ const Home = ()=>{
                   <label className="flex items-center gap-2 cursor-pointer">
                       <input type="radio" name="tipo-viaje" value="ida" checked={tipViaje === "ida"} onChange={(e) => dispatch(tipoViaje(e.target.value))} className="w-5 h-5 appearance-none rounded-full border-1 border-black bg-white  checked:bg-white checked:w-3 checked:h-3 checked:border-green-600 checked:ring-4 checked:ring-green-600"/>
                       <span className={`text-black text-[14px] ${tipViaje == "ida" ? "font-bold" : "font-normal"}`}>Solo ida</span>
-                    </label>
+                  </label>
                 </div>
                 <div className="w-full h-full flex flex-col items-center bg-white gap-y-1.5 rounded-[20px]">
                   <div className="w-[85%] flex  border-1 border-gray-200 mt-4">
-                    <button className="w-[45%] flex items-center justify-center gap-2" onClick={()=>(handleSelectOrigen(), setBtnSelect("Origen"))}>
+                    <button className="w-[45%] flex items-center justify-center gap-2" onClick={()=>(handlerBuscar(), setBtnSelect("Origen"))}>
                       <img src={oriIcon} className="w-5 h-8 object-contain" alt="" />
                       <div className="flex flex-col items-start w-[70%]">
                         <span className="text-gray-400 text-[10px] text-start w-full">Origen</span>
@@ -91,7 +73,7 @@ const Home = ()=>{
 
                     <img src={rows} className="w-5 h-14 object-contain" alt="" />
 
-                    <button className="w-[45%] flex items-center justify-center gap-2" onClick={()=>(setShowDestinoModal(true), setBtnSelect("Destino"))}>
+                    <button className="w-[45%] flex items-center justify-center gap-2" onClick={()=>(handlerBuscar(), setBtnSelect("Destino"))}>
                       <img src={desIcon} className="w-5 h-8 object-contain" alt="" />
                       <div className="flex flex-col items-start w-[70%]">
                         <span className="text-gray-400 text-[10px] text-start w-full">Destino</span>

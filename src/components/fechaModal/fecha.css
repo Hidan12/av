@@ -1,0 +1,29 @@
+/* Forzar el ancho completo del calendario */
+.react-datepicker,
+.react-datepicker__month-container {
+  width: 100% !important;
+  max-width: none;
+}
+
+/* Estilo para que los días ocupen el ancho completo */
+.react-datepicker__week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr); /* 7 días por semana */
+}
+
+/* Centrar el contenido del día */
+.react-datepicker__day {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.react-datepicker__day-names{
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.react-datepicker__day--selected {
+  background-color: black !important;
+  color: white !important;
+  border-radius: 999px !important; /* lo vuelve redondo */
+}

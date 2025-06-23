@@ -14,6 +14,10 @@ const initialState = {
     fechPartida: null,
     fechRegreso: null,
     cantPasajeros: 0,
+    pasaAdulto: 1,
+    pasaJovenes:0,
+    pasaNinos:0,
+    pasaBebe:0,
     precio:0
 }
 
@@ -22,6 +26,8 @@ const homeReducer = createReducer(initialState, (builder)=>{
         state.cargando = true
     })
     .addCase(setHome.fulfilled, (state, action)=>{
+        console.log(action.payload);
+        
         state.cargando = false,
         state.city = action.payload.city.city
         state.codeOrigin = action.payload.city.code
@@ -43,13 +49,17 @@ const homeReducer = createReducer(initialState, (builder)=>{
         state.tipViaje = action.payload
     })
     .addCase(fechaPartida, (state, action)=>{
-        state.fechPartida = format(new Date(action.payload), "yyyy-MM-dd")
+        state.fechPartida = action.payload
     })
     .addCase(fechaRegreso, (state, action)=>{
-        state.fechRegreso = format(new Date(action.payload), "yyyy-MM-dd") 
+        state.fechRegreso = action.payload 
     })
     .addCase(cantidadPasajeros, (state, action)=>{
-        state.cantPasajeros = action.payload
+        state.cantPasajeros = action.payload.totalPasajeros
+        state.pasaAdulto = action.payload.pasaAdulto
+        state.pasaBebe = action.payload.pasaBebe
+        state.pasaJovenes = action.payload.pasaJovenes
+        state.pasaNinos = action.pasaNinos
     })
     .addCase(ClearFecha, (state, action)=>{
         state.fechPartida = null
