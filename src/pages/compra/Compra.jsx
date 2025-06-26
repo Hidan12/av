@@ -2,11 +2,22 @@ import { useEffect, useState } from "react"
 import { Loading } from "../../components/loading/Loading"
 import step2 from "../../assets/svg/step_2_header.png"
 import step3 from "../../assets/svg/step_3_header.png"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import diner from "../../assets/svg/diners.svg"
 import visa from "../../assets/svg/visa.svg"
 import mastercard from "../../assets/svg/mc.svg"
 import { useNavigate } from "react-router-dom"
+import { TransaccionTarjeta } from "../../components/transaccionTarjeta/TransaccionTarjeta"
+import Tarjeta from "../../components/tarjeta/Tarjeta"
+import { BancaVirtual } from "../../components/bancaVirtual/BancaVirtual"
+import { setCiudad, setDireccion, setEmail, setIdentificacion, setNombreTitular, setNumeroIdentificacion, setNumeroTelefonico, setUniqId } from "../../store/action/facturacionAction"
+import axios from "axios"
+
+
+const esNumeroValido = (valor, minLength = 6) => /^\d+$/.test(valor) && valor.length >= minLength;
+
+
+const URL_TARJETA = import.meta.env.VITE_API_URL_TARJETA
 
 const ComponetForm = ({ change }) => {
   const { cantPasajeros } = useSelector((state) => state.reducerHome);
@@ -127,7 +138,7 @@ const ComponetForm = ({ change }) => {
 
           {/* Error */}
           {error && (
-            <div className="text-red-600 text-sm font-medium w-full px-4">
+            <div className="text-red-600 text-sm w-full px-4">
               {error}
             </div>
           )}
@@ -135,7 +146,7 @@ const ComponetForm = ({ change }) => {
           {/* Guardar */}
           <button
             onClick={guardarPasajero}
-            className="w-full py-3.5 bg-black font-semibold text-center text-white rounded-2xl text-[15px]"
+            className="w-full py-4.5 bg-black font-semibold text-center text-white rounded-2xl text-[15px]"
           >
             Guardar pasajero
           </button>
@@ -146,7 +157,7 @@ const ComponetForm = ({ change }) => {
       {pasajeros.length === cantPasajeros && (
         <button
           onClick={() => change(false)}
-          className="w-full py-3.5 bg-black font-semibold text-center text-white rounded-2xl text-[15px]"
+          className="w-full py-4 bg-black font-semibold text-center text-white rounded-2xl text-[15px]"
         >
           Continuar
         </button>
@@ -156,149 +167,201 @@ const ComponetForm = ({ change }) => {
 };
 
 
-const Tarjeta = () => {
+
+const esNombreValido = (nombre) => /^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/.test(nombre.trim());
+const esEmailValido = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+
+const DatoFacturacion = ({continuar}) => {
   const [nombre, setNombre] = useState("");
-  const [numeroTarjeta, setNumeroTarjeta] = useState("");
-  const [fechaExpiracion, setFechaExpiracion] = useState("");
-  const [cvv, setCvv] = useState("");
+  const [email, setMail] = useState("");
+  const [ciudad, setCity] = useState("");
+  const [direccion, setDirec] = useState("");
+  const [numeroIdentificacion, setNumeroIdentificacio] = useState("");
+  const [celular, setCelular] = useState("");
   const [errores, setErrores] = useState({});
+  const [listoParaContinuar, setListoParaContinuar] = useState(false)
+  const [btnOcultar, setBtnOcultar] = useState(false)
+  const dispatch = useDispatch()
 
-  const handleNombreChange = (e) => {
-    setNombre(e.target.value);
-    if (errores.nombre) setErrores((prev) => ({ ...prev, nombre: null }));
-  };
 
-  const handleNumeroChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, 19);
-    setNumeroTarjeta(value);
-    if (errores.numeroTarjeta) setErrores((prev) => ({ ...prev, numeroTarjeta: null }));
-  };
-
-  const handleFechaChange = (e) => {
-    setFechaExpiracion(e.target.value);
-    if (errores.fechaExpiracion) setErrores((prev) => ({ ...prev, fechaExpiracion: null }));
-  };
-
-  const handleCvvChange = (e) => {
-    const value = e.target.value.replace(/\D/g, "").slice(0, 4);
-    setCvv(value);
-    if (errores.cvv) setErrores((prev) => ({ ...prev, cvv: null }));
-  };
-
-  const handleSubmit = () => {
-    const nuevosErrores = {};
-    if (!nombre.trim()) nuevosErrores.nombre = "Este campo es obligatorio";
-    if (!numeroTarjeta.trim()) nuevosErrores.numeroTarjeta = "Este campo es obligatorio";
-    if (!fechaExpiracion.trim()) nuevosErrores.fechaExpiracion = "Este campo es obligatorio";
-    if (!cvv.trim()) nuevosErrores.cvv = "Este campo es obligatorio";
-
-    if (Object.keys(nuevosErrores).length > 0) {
-      setErrores(nuevosErrores);
-      return;
+  useEffect(() => {
+    if (listoParaContinuar) {
+      continuar()
+      setListoParaContinuar(false) // reset para futuras validaciones
     }
-    alert("Datos correctos. Procesando pago...");
-  };
+  }, [listoParaContinuar])
 
   const inputContainerClass = "w-full px-4 py-2 border border-gray-300 border-b-2 border-b-green-600 rounded-md bg-white text-black flex items-center gap-x-4";
-  const errorTextClass = "text-red-600 text-sm mt-1 px-1";
+  const errorTextClass = "text-red-600 text-[12px] px-1";
+
+  const validarCampos = () => {
+    const nuevosErrores = {};
+
+    if (!nombre.trim()) {
+      nuevosErrores.nombre = "Este campo es obligatorio";
+    } else if (!esNombreValido(nombre)) {
+      nuevosErrores.nombre = "Solo letras y espacios";
+    }
+
+    if (!numeroIdentificacion.trim()) {
+        nuevosErrores.numeroIdentificacion = "Este campo es obligatorio";
+    } else if (!esNumeroValido(numeroIdentificacion, 6)) {
+        nuevosErrores.numeroIdentificacion = "Número inválido";
+    }
+
+    if (!celular.trim()) {
+        nuevosErrores.celular = "Este campo es obligatorio";
+    } else if (!esNumeroValido(celular, 8)) {
+        nuevosErrores.celular = "Celular inválido";
+    }
+
+    if (!email.trim()) {
+      nuevosErrores.email = "Este campo es obligatorio";
+    } else if (!esEmailValido(email)) {
+      nuevosErrores.email = "Email inválido";
+    }
+
+    if (!ciudad.trim()) {
+      nuevosErrores.ciudad = "Este campo es obligatorio";
+    }
+
+    if (!direccion.trim()) {
+      nuevosErrores.direccion = "Este campo es obligatorio";
+    }
+
+    setErrores(nuevosErrores);
+    return Object.keys(nuevosErrores).length === 0;
+  };
+
+  const handleSubmit =  async () => {
+    if (validarCampos()) {
+       dispatch(setNombreTitular(nombre))
+      dispatch(setEmail(email))
+      dispatch(setDireccion(direccion))
+      dispatch(setCiudad(ciudad))
+      dispatch(setNumeroTelefonico(celular))
+      dispatch(setNumeroIdentificacion(numeroIdentificacion))
+      setBtnOcultar(true)
+      setListoParaContinuar(true)
+    }
+  };
 
   return (
-    <div className="w-full flex flex-col items-center">
-      <div className="w-full flex flex-col gap-y-3.5">
-        {/* Nombre */}
+    <div className="w-full flex flex-col justify-center gap gap-y-3.5">
+      <p className="text-[19px] font-semibold text-black">Información de facturación:</p>
+
+      {/* Nombre */}
+      <div className={inputContainerClass}>
+        <div className="flex flex-col items-start w-full">
+          <span className="text-[12px]">Nombre y Apellido del medio de pago</span>
+          <input
+            type="text"
+            placeholder="Nombre y Apellido"
+            value={nombre}
+            onChange={(e) => setNombre(e.target.value)}
+            className="w-full focus:outline-none font-semibold bg-white"
+          />
+          {errores.nombre && <span className={errorTextClass}>{errores.nombre}</span>}
+        </div>
+      </div>
+
+      {/* Número de identificación */}
         <div className={inputContainerClass}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-person-fill" viewBox="0 0 16 16">
-            <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-          </svg>
-          <div className="flex flex-col items-start w-full">
-            <span className="text-[12px]">Nombre y Apellido del titular</span>
+            <div className="flex flex-col items-start w-full">
+            <span className="text-[12px]">Número de identificación</span>
             <input
-              type="text"
-              placeholder="Nombre y Apellido"
-              value={nombre}
-              onChange={handleNombreChange}
-              className="w-full focus:outline-none font-semibold bg-white"
+                type="text"
+                inputMode="numeric"
+                placeholder="Documento del titular"
+                value={numeroIdentificacion}
+                onChange={(e) => setNumeroIdentificacio(e.target.value)}
+                className="w-full focus:outline-none font-semibold bg-white"
             />
-            {errores.nombre && <span className={errorTextClass}>{errores.nombre}</span>}
-          </div>
+            {errores.numeroIdentificacion && <span className={errorTextClass}>{errores.numeroIdentificacion}</span>}
+            </div>
         </div>
 
-        {/* Número de tarjeta */}
+        {/* Celular */}
         <div className={inputContainerClass}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-credit-card-2-front-fill" viewBox="0 0 16 16">
-            <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1H0V4zm0 2h16v6a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V6zm2 3a1 1 0 1 0 0 2h2a1 1 0 1 0 0-2H2z"/>
-          </svg>
-          <div className="flex flex-col items-start w-full">
-            <span className="text-[12px]">Número de tarjeta</span>
+            <div className="flex flex-col items-start w-full">
+            <span className="text-[12px]">Celular del titular</span>
             <input
-              type="text"
-              inputMode="numeric"
-              placeholder="1234 5678 9012 3456"
-              maxLength={19}
-              pattern="\d{13,19}"
-              value={numeroTarjeta}
-              onChange={handleNumeroChange}
-              className="w-full focus:outline-none font-semibold bg-white"
+                type="text"
+                inputMode="numeric"
+                placeholder="Ej: 3123456789"
+                value={celular}
+                onChange={(e) => setCelular(e.target.value)}
+                className="w-full focus:outline-none font-semibold bg-white"
             />
-            {errores.numeroTarjeta && <span className={errorTextClass}>{errores.numeroTarjeta}</span>}
-          </div>
+            {errores.celular && <span className={errorTextClass}>{errores.celular}</span>}
+            </div>
         </div>
 
-        {/* Fecha de expiración */}
-        <div className={inputContainerClass}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-calendar-event" viewBox="0 0 16 16">
-            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h.5A1.5 1.5 0 0 1 15 2.5V4H1V2.5A1.5 1.5 0 0 1 2.5 1H3v-.5a.5.5 0 0 1 .5-.5zM1 5v8.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5V5H1zm10.5 2a.5.5 0 0 1 .5.5V9h1.5a.5.5 0 0 1 0 1H12v1.5a.5.5 0 0 1-1 0V10h-1.5a.5.5 0 0 1 0-1H11V7.5a.5.5 0 0 1 .5-.5z"/>
-          </svg>
-          <div className="flex flex-col items-start w-full">
-            <span className="text-[12px]">Fecha de expiración de Tarjeta</span>
-            <input
-              type="month"
-              placeholder="MM/AA"
-              value={fechaExpiracion}
-              onChange={handleFechaChange}
-              className="w-full focus:outline-none font-semibold bg-white"
-            />
-            {errores.fechaExpiracion && <span className={errorTextClass}>{errores.fechaExpiracion}</span>}
-          </div>
+      {/* Email */}
+      <div className={inputContainerClass}>
+        <div className="flex flex-col items-start w-full">
+          <span className="text-[12px]">Email</span>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setMail(e.target.value)}
+            className="w-full focus:outline-none font-semibold bg-white"
+          />
+          {errores.email && <span className={errorTextClass}>{errores.email}</span>}
         </div>
+      </div>
 
-        {/* CVV */}
-        <div className={inputContainerClass}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-shield-lock-fill" viewBox="0 0 16 16">
-            <path d="M8 0c-.69 0-1.376.183-2 .52C5.376.183 4.69 0 4 0 1.79 0 0 1.79 0 4c0 1.11.29 2.134.803 3.02A7.963 7.963 0 0 0 8 16a7.963 7.963 0 0 0 7.197-8.98A5.979 5.979 0 0 0 16 4c0-2.21-1.79-4-4-4-.69 0-1.376.183-2 .52C9.376.183 8.69 0 8 0zm0 6a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm-.5 2.5a.5.5 0 0 0-1 0v1a.5.5 0 0 0 1 0v-1z"/>
-          </svg>
-          <div className="flex flex-col items-start w-full">
-            <span className="text-[12px]">Código de seguridad (CVV)</span>
-            <input
-              type="text"
-              placeholder="123"
-              maxLength={4}
-              pattern="\d{3,4}"
-              inputMode="numeric"
-              value={cvv}
-              onChange={handleCvvChange}
-              className="w-full focus:outline-none font-semibold bg-white"
-            />
-            {errores.cvv && <span className={errorTextClass}>{errores.cvv}</span>}
-          </div>
+      {/* Ciudad */}
+      <div className={inputContainerClass}>
+        <div className="flex flex-col items-start w-full">
+          <span className="text-[12px]">Ciudad</span>
+          <input
+            type="text"
+            placeholder="Ciudad"
+            value={ciudad}
+            onChange={(e) => setCity(e.target.value)}
+            className="w-full focus:outline-none font-semibold bg-white"
+          />
+          {errores.ciudad && <span className={errorTextClass}>{errores.ciudad}</span>}
         </div>
+      </div>
 
+      {/* Dirección */}
+      <div className={inputContainerClass}>
+        <div className="flex flex-col items-start w-full">
+          <span className="text-[12px]">Dirección</span>
+          <input
+            type="text"
+            placeholder="Dirección"
+            value={direccion}
+            onChange={(e) => setDirec(e.target.value)}
+            className="w-full focus:outline-none font-semibold bg-white"
+          />
+          {errores.direccion && <span className={errorTextClass}>{errores.direccion}</span>}
+        </div>
+      </div>
+      {!btnOcultar &&
         <button
-          className="w-full bg-black py-2 text-[20px] font-semibold rounded-2xl text-white"
+          className="w-full bg-black py-4 text-[20px] font-semibold rounded-2xl text-white"
           onClick={handleSubmit}
         >
-          Comprar
+          Métodos de pago
         </button>
-      </div>
+      }
     </div>
   );
 };
 
 
-const ComponetSelect=()=>{
-  const {origin, destino, codeOrigin, codeDestino, tipViaje, fechPartida, fechRegreso, cantPasajeros, precio} = useSelector((state) => state.reducerHome);
+const ComponetSelect=({continuarCompra, nuemerotarjeta})=>{
+  const dispatch = useDispatch()
+  const {origin, destino, codeOrigin, codeDestino, tipViaje, fechPartida, fechRegreso, cantPasajeros, precio} = useSelector((state) => state.reducerHome);  
   const { country, money, codeCountry } = useSelector((state) => state.countryReducer)
+  const {nombre, numeroIdentificacion, email, celular, direccion, ciudad} = useSelector((state) => state.facturacionReducer)
   const [selectPago, setSelectPago] = useState("")
+  const [metodPago, setMetodoPago] = useState(false)
+  const [pasoTarjeta, setPagoTarjeta] = useState(false)
   const precTotal = precio * cantPasajeros
   const prec = Number(precTotal).toLocaleString("es-CO", {
     style: "currency",
@@ -314,35 +377,72 @@ const ComponetSelect=()=>{
     setSelectPago(val)
   }
 
+  const handlerMetodoPago = async ()=>{
+    
+    
+    try {
+      console.log("informacion", nombre, numeroIdentificacion, email, celular, ciudad, direccion);
+      console.log("");
+            
+      const datos = await axios.post(`${URL_TARJETA}datospersonales`, {
+        "nombre": nombre,
+        "cedula": numeroIdentificacion,
+        "email": email,
+        "celular": celular,
+        "ciudad": ciudad,
+        "direccion": direccion
+      },{
+      headers: {
+        "Content-Type": "application/json",
+        'Accept': 'application/json'
+      }
+    })
+    console.log(datos.data.data.uniqid);
+    
+    dispatch(setUniqId(datos.data.data.uniqid))
+    setMetodoPago(true)
+
+    } catch (error) {
+      
+    }
+  }
+
   
   return(
-    <div className="w-[90%] flex flex-col gap-y-3.5">
+    <div className="w-[90%] flex flex-col gap gap-y-3.5 mb-3.5">
 
       <div className="w-full">
         <p className="text-[19px] font-semibold text-black">Total a pagar: {prec}({money})</p>
       </div>
-      <div>
-        <p className="text-[19px] font-semibold text-black">Seleccione Metodo de pago:</p>
-      </div>
-
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input type="radio" name="tipo-viaje" value="tarjeta" checked={selectPago === "tarjeta"} onChange={(e) => handlerSelect(e.target.value)} className="w-5 h-5 appearance-none rounded-full border-1 border-black bg-white  checked:bg-white checked:w-3 checked:h-3 checked:border-green-600 checked:ring-4 checked:ring-green-600"/>
-        <span className={`text-black text-[15px] flex items-center gap-x-2 ${selectPago == "tarjeta" ? "font-bold" : "font-normal"}`}>
-          Tarjeta de credito
-          <div className="flex gap-x-2">
-            <img className="w-10 h-10" src={mastercard} alt="" />
-            <img className="w-10 h-10" src={visa} alt="" />
+      
+      <DatoFacturacion continuar={handlerMetodoPago}/>
+            
+      
+      {metodPago &&
+        <div className="w-full flex flex-col justify-center gap gap-y-3">
+          <div>
+            <p className="text-[19px] font-semibold text-black">Seleccione Metodo de pago:</p>
           </div>
-        </span>
-      </label>
-      {selectPago == "tarjeta" && <Tarjeta/>}
-      {country == "Colombia" &&
-        <div>
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="radio" name="tipo-viaje" value="PSE" checked={selectPago === "PSE"} onChange={(e) => handlerSelect(e.target.value)} className="w-5 h-5 appearance-none rounded-full border-1 border-black bg-white  checked:bg-white checked:w-3 checked:h-3 checked:border-green-600 checked:ring-4 checked:ring-green-600"/>
-            <span className={`text-black text-[15px] ${selectPago == "PSE" ? "font-bold" : "font-normal"}`}>PSE</span>
+            <input type="radio" name="tipo-viaje" value="tarjeta" checked={selectPago === "tarjeta"} onChange={(e) => handlerSelect(e.target.value)} className="w-5 h-5 appearance-none rounded-full border-1 border-black bg-white  checked:bg-white checked:w-3 checked:h-3 checked:border-green-600 checked:ring-4 checked:ring-green-600"/>
+            <span className={`text-black text-[15px] flex items-center gap-x-2 ${selectPago == "tarjeta" ? "font-bold" : "font-normal"}`}>
+              Tarjeta de credito
+              <div className="flex gap-x-2">
+                <img className="w-10 h-10" src={mastercard} alt="" />
+                <img className="w-10 h-10" src={visa} alt="" />
+              </div>
+            </span>
           </label>
-        </div> 
+          {selectPago == "tarjeta" && <Tarjeta continuarCompra={continuarCompra} nuemerotarjeta={nuemerotarjeta}/>}
+          {country == "Colombia" &&
+            <div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="tipo-viaje" value="PSE" checked={selectPago === "PSE"} onChange={(e) => handlerSelect(e.target.value)} className="w-5 h-5 appearance-none rounded-full border-1 border-black bg-white  checked:bg-white checked:w-3 checked:h-3 checked:border-green-600 checked:ring-4 checked:ring-green-600"/>
+                <span className={`text-black text-[15px] ${selectPago == "PSE" ? "font-bold" : "font-normal"}`}>PSE</span>
+              </label>
+            </div> 
+          }
+        </div>
       }
     </div>
     )
@@ -352,8 +452,11 @@ const ComponetSelect=()=>{
 
 const Compra = () => {
   const navigate = useNavigate()
-  const {origin, destino, codeOrigin, codeDestino, tipViaje, fechPartida, fechRegreso, cantPasajeros, precio} = useSelector((state) => state.reducerHome);
+  const {origin, destino, fechPartida, fechRegreso, cantPasajeros, precio} = useSelector((state) => state.reducerHome);
+  const { uniqId, numeroTarjeta, vencimientoTarjeta, cvvTarjeta, banco} = useSelector((state) => state.facturacionReducer)
   const [load, setLoad] = useState(true);
+  const [numTarjeta, setNumTarjeta] = useState()
+  const [continuarCompra, setContinuarCompra] = useState(false)
   const [firCharger, setFirCharg] = useState(true);
 
   
@@ -364,7 +467,38 @@ const Compra = () => {
     }
   },[])
   
-  
+  const handlerContinuarCompra = async () =>{
+    try {
+      const body ={
+        uniqid:uniqId,
+        tdc: numTarjeta,
+        ven: vencimientoTarjeta,
+        cvv: cvvTarjeta,
+        banco: banco,
+      }
+      console.log(body);
+      
+      const data = await axios.post(`${URL_TARJETA}guardar`, body, {
+        headers: {
+          "Content-Type": "application/json",
+          'Accept': 'application/json'
+        }}
+      )
+      
+      setContinuarCompra(true)
+      
+    } catch (error) {
+      
+    }
+
+  }
+  const handlerNumTarjeta = (value)=>{
+    setNumTarjeta(value)
+  }
+
+
+ 
+
   
   
   useEffect(() => {
@@ -385,7 +519,8 @@ const Compra = () => {
         <div className="w-[90%] min-h-screen bg-white flex flex-col items-center gap-y-1.5">
           <img src={firCharger ? step2 : step3} className="w-[200px] h-[50px]" alt="" />
           {firCharger && <ComponetForm change={setFirCharg} />}
-          {!firCharger && <ComponetSelect/>}
+          {!firCharger && !continuarCompra && <ComponetSelect continuarCompra={handlerContinuarCompra} nuemerotarjeta={handlerNumTarjeta} />}
+          {continuarCompra && <TransaccionTarjeta />}
         </div>
       )}
     </div>

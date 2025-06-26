@@ -26,8 +26,6 @@ const homeReducer = createReducer(initialState, (builder)=>{
         state.cargando = true
     })
     .addCase(setHome.fulfilled, (state, action)=>{
-        console.log(action.payload);
-        
         state.cargando = false,
         state.city = action.payload.city.city
         state.codeOrigin = action.payload.city.code

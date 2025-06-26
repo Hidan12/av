@@ -2,7 +2,7 @@ import React from "react";
 import { format, parseISO } from "date-fns";
 import { useSelector } from "react-redux";
 
-const CardVuelo = ({ vuelo, pos }) => {
+const CardVuelo = ({ vuelo, pos, label }) => {
   const { money } = useSelector(state => state.countryReducer);
   const isCombo = vuelo.ida && vuelo.vuelta;
 
@@ -40,7 +40,7 @@ const CardVuelo = ({ vuelo, pos }) => {
     : vuelo.precio.formato;
 
   return (
-    <div className={`w-full rounded-3xl shadow-md bg-white border border-gray-300 relative ${pos == -1 ? " border-2 border-green-500":""}`}>
+    <div className={`w-full rounded-3xl mt-3 shadow-xl bg-white  relative ${pos == -1 ? " border-2 border-green-500":""}`}>
       {pos === 0 && (
         <div className="absolute rounded-tr-3xl top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-xl">
           $ Mejor precio
@@ -52,7 +52,7 @@ const CardVuelo = ({ vuelo, pos }) => {
               {renderTramo(vuelo.ida, "Ida")}
               {renderTramo(vuelo.vuelta, "Vuelta")}
             </>
-          : renderTramo(vuelo, vuelo.tipo_vuelo)
+          : renderTramo(vuelo, (label ? label : vuelo.tipo_vuelo))
         }
 
         <div className="text-center text-xs text-gray-400 mb-4">

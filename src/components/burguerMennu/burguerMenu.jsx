@@ -4,7 +4,7 @@ const BurguerMenu = ({close})=>{
     const { country, money, codeCountry } = useSelector((state) => state.countryReducer)
     
     return(
-        <div className="w-full bg-white flex flex-col justify-center items-center absolute top-0 z-50">
+        <div className="fixed inset-0 w-full h-screen bg-white flex flex-col justify-center items-center z-50">
             <div className="w-[90%] grid grid-cols-3 pt-3">
                 <img src={log} className="h-12 object-contain" alt="" />
                 <div></div>

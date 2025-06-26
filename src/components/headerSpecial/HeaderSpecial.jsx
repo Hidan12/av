@@ -8,10 +8,11 @@ const HeaderSpecial = ()=>{
     }
     return(
         <div className="w-full h-[10vh] bg-black flex justify-center items-center">
-            
-            <picture onClick={()=>handlerLogo()} className="w-[90%]">
-                <img src={logo} className="w-[10vw] object-contain" alt="" />
-            </picture>
+            <a href="/" className="w-[90%]">
+                <picture  className="w-[90%]">
+                    <img src={logo} className="w-[10vw] object-contain" alt="" />
+                </picture>
+            </a>
 
         </div>
     )

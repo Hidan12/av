@@ -7,6 +7,8 @@ import Home from './pages/home/Home'
 import { LayoutsEspecial } from './layouts/LayoutsEspecial'
 import { Viaje } from './pages/viajes/Viaje'
 import { Compra } from './pages/compra/Compra'
+import { CompraExitosa } from './pages/compraExistosa/CompraExitosa'
+import { ErrorCompra } from './pages/errorCompra/ErrorCompra'
 
 const router = createBrowserRouter([
   {
@@ -19,7 +21,9 @@ const router = createBrowserRouter([
     element: <LayoutsEspecial/>,
     children: [
       {path: "/viaje", element:<Viaje/>},
-      {path:"/compra", element:<Compra/>}
+      {path:"/compra", element:<Compra/>},
+      {path: "/compraExitosa", element:<CompraExitosa/>},
+      {path:"/errorCompra", element:<ErrorCompra/>}
     ]
   }
 ])

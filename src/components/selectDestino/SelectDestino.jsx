@@ -5,7 +5,7 @@ import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { changeDestino, changeOrigin } from "../../store/action/homeAction";
 
-const url = "https://av.procesosrecuperacion.online/api/search-destinations"
+const url = import.meta.env.VITE_API_URL_SEARCH_DESTINATION
 
 const SelectDestino = ({close, select, back, onSelected, clDestino, fecha})=>{
     const {origin, destino,} = useSelector(state => state.reducerHome)

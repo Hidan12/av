@@ -1,7 +1,8 @@
 import { createAction, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const URL_AVIANCA = "https://av.procesosrecuperacion.online/api/get-destination"
-const URL_BACK = "http://localhost:8080/api"
+const URL_AVIANCA = import.meta.env.VITE_API_URL_HOME
+const URL_BACK = import.meta.env.VITE_API_URL_BASIC
+
 
 
 const paises = {

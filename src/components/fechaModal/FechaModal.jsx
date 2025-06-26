@@ -45,6 +45,8 @@ const FechaModal = ({ close, back, onSelected, selectClick }) => {
   };
 
   const handleFechaVuelta = (date) => {
+    console.log("entro");
+    
     setFechaVuelta(date);
     dispatch(fechaRegreso(format(date, "yyyy-MM-dd"))); // guarda como string local
     onSelected();

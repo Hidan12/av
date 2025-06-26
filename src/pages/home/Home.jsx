@@ -14,7 +14,7 @@ import axios from "axios"
 import { Buscar } from "../../components/buscar/Buscar"
 
 
-const UrlUbicacion = "http://localhost:8080/api"
+const UrlUbicacion = import.meta.env.VITE_API_URL_BASIC
 
 const Home = ()=>{
   const dispatch = useDispatch()

@@ -144,7 +144,7 @@ const Pasajeros = ({ close, back, selectPasajero }) => {
           {error && <span className="text-red-600 font-semibold text-center my-2 text-[14px]">{error}</span>}
           {/* Botón Confirmar */}
           <div className="w-[90%]">
-            <button onClick={() => handleConfirmar()} className="w-full bg-black text-white py-2 rounded-full font-semibold hover:bg-gray-800 transition">
+            <button onClick={() => handleConfirmar()} className="w-full bg-black text-white py-4 rounded-full font-semibold hover:bg-gray-800 transition">
               Confirmar
             </button>
           </div>

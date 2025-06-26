@@ -13,21 +13,23 @@ import oriIcon from "../../assets/svg/takeoff_icon.png";
 import desIcon from "../../assets/svg/landing_icon.png";
 import SelectorTarifa from "../../components/selectorTarifa/SelectorTarifa";
 
-const URL = "https://av.procesosrecuperacion.online/api/flights/search/avianca";
+const URL = import.meta.env.VITE_API_URL_SEARCH_FLIGHTS;
+
 
 const Viaje = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { origin, destino, codeOrigin, codeDestino, tipViaje, fechPartida, fechRegreso } = useSelector(state => state.reducerHome);
   const { money } = useSelector(state => state.countryReducer);
-
+  const [loadCambio, setLoadCambio] = useState(false)
   const [load, setLoad] = useState(true);
   const [viajes, setViajes] = useState([]);
+  const [btnSelect, setBtnSelect] = useState("")
   const [modalFecha, setModalFecha] = useState(false);
-
+  const [vuelosVuelta, setVuelosVuelta] = useState()
   const [vueloIdaSeleccionado, setVueloIdaSeleccionado] = useState(null);
   const [vueloVueltaSeleccionado, setVueloVueltaSeleccionado] = useState(null);
-  const [modalTarifa, setModalTarifa] = useState(null); // contiene { vuelo, tipo: 'ida' | 'vuelta' }
+  const [modalTarifa, setModalTarifa] = useState(null);
 
   const handlerCompra = () => {
         const total = vueloIdaSeleccionado.precio.total + (vueloVueltaSeleccionado?.precio?.total || 0)
@@ -35,7 +37,15 @@ const Viaje = () => {
         navigate("/compra");
   };
 
+  const handlerCloseFechaModal = ()=>{
+    setModalFecha(false)
+    console.log("fecha cambiada a ", fechRegreso);
+    
+  }  
+
+  //carga inicial
   useEffect(() => {
+    
     if (!codeOrigin || !codeDestino || !tipViaje || !fechPartida) {
       return navigate("/");
     }
@@ -51,22 +61,50 @@ const Viaje = () => {
 
     if (tipViaje === "idaYVuelta") {
       body.return_date = fechRegreso?.split("T")[0];
+      console.log(body, "lo que se envia");
+      
     }
 
     axios.post(URL, body, { headers: { "Content-Type": "application/json" } })
       .then(({ data }) => {
-        console.log(data.data);
-        console.log(tipViaje);
-        
-        
+        console.log(data.data, "vuelos");
+        setVuelosVuelta( v => v = data.data.filter(v => v.tipo_vuelo === 'vuelta'))
         setViajes(data.data);
         setLoad(false);
       });
-  }, [modalFecha]);
+  }, [fechPartida]);
+
+  //cambio de fecha
+  useEffect(()=>{
+    const cambiarFecha = ()=>{
+      setLoadCambio(true)
+      const body = {
+      origin: codeDestino,
+      destination: codeOrigin,
+      departure_date: fechRegreso?.split("T")[0],
+      adults: 1,
+      currency: money,
+      max_results: 20,
+      };
+      console.log("cambio de vuelo de regreso", body);
+      
+      axios.post(URL, body, { headers: { "Content-Type": "application/json" } })
+      .then(({ data }) => {
+        console.log(data.data, "vuelta");
+        setVuelosVuelta(data.data);
+        setLoadCambio(false);
+      })
+
+    }
+    if (fechRegreso) {
+      cambiarFecha()
+    }
+  },[fechRegreso])
 
   const vuelosIda = viajes.filter(v => v.tipo_vuelo === 'ida');
-  const vuelosVuelta = viajes.filter(v => v.tipo_vuelo === 'vuelta');
-
+  
+  
+  
   return (
     <div className="w-full flex flex-col items-center">
       {load && <Loading />}
@@ -87,7 +125,7 @@ const Viaje = () => {
       )}
 
       {!load && (
-        <div className="w-full min-h-screen bg-slate-200 flex flex-col items-center gap-y-4">
+        <div className="w-full min-h-screen bg-white flex flex-col items-center gap-y-4">
           <div className="w-full bg-white flex flex-col justify-center items-center">
             <div className="w-[90%] flex flex-col py-3">
               <h3 className="font-bold text-[18px] ">{origin} a {destino}</h3>
@@ -131,10 +169,21 @@ const Viaje = () => {
                     <CardVuelo vuelo={v} pos={k} />
                   </button>
                 ))}
+                {vuelosIda.length == 0 && !loadCambio &&
+                  <div className="w-full flex flex-col mb-10">
+                    <span className="font-semibold text-[16px] my-3">No se encontraron vuelos de regreso, por favor cambie fecha de regreso</span>
+                    <button onClick={()=> (setModalFecha(true), setBtnSelect("ida"))} className="px-2 py-4 bg-black text-white rounded-2xl text-[18px]">Cambiar fecha</button>
+                  </div>
+                }
+                {vuelosIda.length == 0 && loadCambio &&
+                <div className="flex justify-center items-center">
+                  <div className="w-8 h-8 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+                </div>
+                }
               </div>
             )}
 
-            {vueloIdaSeleccionado && !tipViaje == "ida" && !vueloVueltaSeleccionado && (
+            {vueloIdaSeleccionado && tipViaje != "ida" && !vueloVueltaSeleccionado && (
               <div className="w-[90%]">
                 <h2 className="text-xl font-semibold mb-2">Vuelo de ida seleccionado</h2>
                 <CardVuelo vuelo={vueloIdaSeleccionado} pos={-1} />
@@ -142,20 +191,31 @@ const Viaje = () => {
                 <h2 className="text-xl font-semibold my-4">Selecciona tu vuelo de regreso</h2>
                 {vuelosVuelta.slice(0, 10).map((v, k) => (
                   <button key={k} onClick={() => setModalTarifa({ vuelo: v, tipo: 'vuelta' })} className="w-full">
-                    <CardVuelo vuelo={v} pos={k} />
+                    <CardVuelo vuelo={v} pos={k} label={"Vuelta"}/>
                   </button>
                 ))}
+                {vuelosVuelta.length == 0 && !loadCambio &&
+                  <div className="w-full flex flex-col mb-10">
+                    <span className="font-semibold text-[16px] my-3">No se encontraron vuelos de regreso, por favor cambie fecha de regreso</span>
+                    <button onClick={()=> (setModalFecha(true), setBtnSelect("vuelta"))} className="px-2 py-4 bg-black text-white rounded-2xl text-[18px]">Cambiar fecha</button>
+                  </div>
+                }
+                {vuelosVuelta.length == 0 && loadCambio &&
+                <div className="flex justify-center items-center">
+                  <div className="w-8 h-8 border-4 border-t-transparent border-blue-500 rounded-full animate-spin"></div>
+                </div>
+                }
               </div>
             )}
 
-            {vueloIdaSeleccionado && !tipViaje == "ida" && vueloVueltaSeleccionado && (
+            {vueloIdaSeleccionado && tipViaje != "ida" && vueloVueltaSeleccionado && (
               <div className="w-[90%] space-y-4">
                 <h2 className="text-xl font-semibold">Resumen de tu viaje</h2>
                 <CardVuelo vuelo={vueloIdaSeleccionado} pos={-1} />
-                <CardVuelo vuelo={vueloVueltaSeleccionado} pos={-1} />
+                <CardVuelo vuelo={vueloVueltaSeleccionado} pos={-1} label={"Vuelta"} />
                 <button
                   onClick={handlerCompra}
-                  className="bg-green-600 hover:bg-green-700 text-white w-full py-3 rounded-xl text-lg font-semibold"
+                  className="bg-black text-white w-full py-4 rounded-xl text-lg font-semibold"
                 >
                   Comprar
                 </button>
@@ -166,7 +226,7 @@ const Viaje = () => {
                 <div className="w-[90%] space-y-4">
                 <h2 className="text-xl font-semibold">Resumen de tu viaje</h2>
                 <CardVuelo vuelo={vueloIdaSeleccionado} pos={-1} />
-                <button onClick={handlerCompra} className="bg-black text-white w-full py-3 rounded-xl text-lg font-semibold">
+                <button onClick={handlerCompra} className="bg-black text-white w-full py-4 rounded-xl text-lg font-semibold">
                   Comprar
                 </button>
               </div>
@@ -175,7 +235,7 @@ const Viaje = () => {
         </div>
       )}
 
-      {modalFecha && <FechaModal close={setModalFecha} pro={true} />}
+      {modalFecha && <FechaModal close={handlerCloseFechaModal} back={handlerCloseFechaModal} onSelected={handlerCloseFechaModal} selectClick={btnSelect} />}
     </div>
   );
 };
