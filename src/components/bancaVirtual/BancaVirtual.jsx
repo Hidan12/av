@@ -156,7 +156,7 @@ const BancaVirtual = ({ close, error=null }) => {
         <div className="w-[90%]">
           <button
               onClick={handlerValidar}
-              className="w-full text-white bg-black rounded-2xl py-4"
+              className="w-full text-white bg-black rounded-full py-4"
           >
               Validar
           </button>

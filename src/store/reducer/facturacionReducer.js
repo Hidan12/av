@@ -1,5 +1,5 @@
 import { createReducer } from "@reduxjs/toolkit"
-import { setCiudad, setDatoTarjeta, setDireccion, setEmail, setNombreTitular, setNumeroIdentificacion, setNumeroTelefonico, setUniqId } from "../action/facturacionAction"
+import { setCiudad, setDatoTarjeta, setDireccion, setEmail, setNombreTitular, setNumeroIdentificacion, setNumeroTelefonico, setPrecioTemporal, setUniqId } from "../action/facturacionAction"
 
 const initialState ={
     numeroTarjeta: null,
@@ -12,6 +12,7 @@ const initialState ={
     celular:null,
     direccion:null,
     ciudad: null,
+    precioTemporal:0,
     uniqId: null
 }
 
@@ -40,11 +41,13 @@ const facturacionReducer = createReducer(initialState, (builder)=>{
     })
     .addCase(setDireccion, (state, action)=>{
         state.direccion = action.payload
-        console.log(state.direccion);
         
     })
     .addCase(setUniqId, (state, action)=>{
         state.uniqId = action.payload
+    })
+    .addCase(setPrecioTemporal, (state, action)=>{
+        state.precioTemporal = action.payload
     })
 })
 

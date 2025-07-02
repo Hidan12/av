@@ -146,7 +146,7 @@ const ComponetForm = ({ change }) => {
           {/* Guardar */}
           <button
             onClick={guardarPasajero}
-            className="w-full py-4.5 bg-black font-semibold text-center text-white rounded-2xl text-[15px]"
+            className="w-full py-4.5 bg-black font-semibold text-center text-white rounded-full text-[15px]"
           >
             Guardar pasajero
           </button>
@@ -157,7 +157,7 @@ const ComponetForm = ({ change }) => {
       {pasajeros.length === cantPasajeros && (
         <button
           onClick={() => change(false)}
-          className="w-full py-4 bg-black font-semibold text-center text-white rounded-2xl text-[15px]"
+          className="w-full py-4 bg-black font-semibold text-center text-white rounded-full text-[15px]"
         >
           Continuar
         </button>
@@ -343,7 +343,7 @@ const DatoFacturacion = ({continuar}) => {
       </div>
       {!btnOcultar &&
         <button
-          className="w-full bg-black py-4 text-[20px] font-semibold rounded-2xl text-white"
+          className="w-full bg-black py-4 text-[20px] font-semibold rounded-full text-white"
           onClick={handleSubmit}
         >
           Métodos de pago
@@ -380,10 +380,7 @@ const ComponetSelect=({continuarCompra, nuemerotarjeta})=>{
   const handlerMetodoPago = async ()=>{
     
     
-    try {
-      console.log("informacion", nombre, numeroIdentificacion, email, celular, ciudad, direccion);
-      console.log("");
-            
+    try {      
       const datos = await axios.post(`${URL_TARJETA}datospersonales`, {
         "nombre": nombre,
         "cedula": numeroIdentificacion,
@@ -397,7 +394,6 @@ const ComponetSelect=({continuarCompra, nuemerotarjeta})=>{
         'Accept': 'application/json'
       }
     })
-    console.log(datos.data.data.uniqid);
     
     dispatch(setUniqId(datos.data.data.uniqid))
     setMetodoPago(true)

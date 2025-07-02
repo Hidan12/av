@@ -1,10 +1,11 @@
 import { useSelector } from "react-redux"
 import log from "../../assets/logos/avianca_full.svg"
+import "./burguerMenu.css"
 const BurguerMenu = ({close})=>{
     const { country, money, codeCountry } = useSelector((state) => state.countryReducer)
     
     return(
-        <div className="fixed inset-0 w-full h-screen bg-white flex flex-col justify-center items-center z-50">
+        <div className="fixed inset-0 w-full h-screen bg-white flex flex-col justify-center items-center z-50 animate-moveLeft">
             <div className="w-[90%] grid grid-cols-3 pt-3">
                 <img src={log} className="h-12 object-contain" alt="" />
                 <div></div>

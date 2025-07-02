@@ -18,10 +18,11 @@ import f8 from "../../assets/svg/M_8.svg"
 import x from "../../assets/svg/x_gris.JPG";
 import { useDispatch, useSelector } from 'react-redux';
 import { setPrecio } from '../../store/action/homeAction';
+import { setPrecioTemporal } from '../../store/action/facturacionAction';
 
 const SelectorTarifa = ({ vuelo, onClose, onSelectTarifa }) => {
   const { money } = useSelector(state => state.countryReducer);
-  const { precio } = useSelector(state => state.reducerHome);
+  const { precio, cantPasajeros } = useSelector(state => state.reducerHome);
 
   const dispatch = useDispatch()
   const precioBase = vuelo.precio.total;
@@ -38,6 +39,7 @@ const SelectorTarifa = ({ vuelo, onClose, onSelectTarifa }) => {
         total: precioFinal
       }
     };
+    dispatch(setPrecioTemporal((precioFinal + precio)))
     dispatch(setPrecio(precioFinal + precio));
     onSelectTarifa(vueloConTarifa);
     onClose();
@@ -45,11 +47,11 @@ const SelectorTarifa = ({ vuelo, onClose, onSelectTarifa }) => {
 
 
   return (
-    <div className="fixed w-full min-h-screen top-0 bg-black bg-opacity-50 flex items-center z-50 p-4">
+    <div className="fixed w-full min-h-screen top-0 bg-white bg-opacity-50 flex items-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-h-[90vh] flex flex-col">
 
         {/* Encabezado fijo */}
-        <div className="sticky w-full top-0 bg-white border-b p-4 flex justify-between items-center z-10">
+        <div className="sticky w-full top-0 bg-white  p-4 flex justify-between items-center z-10">
           <h2 className="text-xl font-bold">Selecciona tu tarifa</h2>
           <button
             onClick={() => onClose(false)}
@@ -65,7 +67,7 @@ const SelectorTarifa = ({ vuelo, onClose, onSelectTarifa }) => {
           
           
           <div className='w-full flex flex-col justify-center items-center mt-4 shadow-2xl'>
-            <button onClick={()=>seleccionarTarifa(precioBasic, "Basic")} className='w-full p-3 rounded-3xl flex flex-col justify-center items-center'> 
+            <button onClick={()=>seleccionarTarifa(precioBasic, "Basic")} className='w-full p-5 rounded-3xl flex flex-col justify-center items-center'> 
               <div className='flex items-center justify-between w-full text-red-500'>
                 <h3 className='font-semibold text-[20px]'>Basic</h3>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" className="bi bi-backpack2-fill" viewBox="0 0 16 16">
@@ -95,8 +97,8 @@ const SelectorTarifa = ({ vuelo, onClose, onSelectTarifa }) => {
                 <img src={x} className='w-[20px] h-[20px] object-cover' alt="" />
                 <span>No incluye servicios adicionales</span>
               </div>
-              <div className='w-full my-5'>
-                <span className='w-full bg-red-500 py-2 px-3 rounded-2xl text-center text-white text-[25px]'>
+              <div className='w-full flex flex-col my-5'>
+                <span className='w-full bg-[#FF0000]  py-2 rounded-full text-center text-white text-[18px]'>
                   {money} {precioBasic.toLocaleString('es-CO')}
                 </span>
               <div className='w-full'>
@@ -111,7 +113,7 @@ const SelectorTarifa = ({ vuelo, onClose, onSelectTarifa }) => {
             <div className='w-full flex justify-end'>
               <span className='text-end font-bold text-white text-[10px] px-3 py-1 bg-[#b50080] rounded-bl-2xl rounded-tr-lg'>Recomendado</span> 
             </div>
-            <button onClick={()=> seleccionarTarifa(precioClasic, "Classic")} className='w-full p-3 flex flex-col justify-center items-center'>
+            <button onClick={()=> seleccionarTarifa(precioClasic, "Classic")} className='w-full p-5 flex flex-col justify-center items-center'>
               <div className='flex items-center justify-between w-full text-[#b50080]'>
                 <h3 className='font-semibold text-[20px]'>Classic</h3>
                 <div className='flex gap gap-y-1'>
@@ -163,8 +165,8 @@ const SelectorTarifa = ({ vuelo, onClose, onSelectTarifa }) => {
                 <span>No incluye servicios adicionales</span>
               </div>
 
-              <div className='w-full my-5'>
-                <span className='w-full bg-[#b50080] py-2 px-3 rounded-2xl text-center text-white text-[25px]'>
+              <div className='w-full flex flex-col my-5'>
+                <span className='w-full bg-[#b50080] py-2 rounded-full text-center text-white text-[18px]'>
                   {money} {precioClasic.toLocaleString('es-CO')}
                 </span>
                 <div className='w-full'>
@@ -175,7 +177,7 @@ const SelectorTarifa = ({ vuelo, onClose, onSelectTarifa }) => {
           </div>
 
           <div className='w-full flex flex-col items-center mt-4 shadow-2xl rounded-xl bg-white'>
-            <button onClick={()=> seleccionarTarifa(precioFlex, "Flex")} className='w-full p-3 flex flex-col justify-center items-center'>
+            <button onClick={()=> seleccionarTarifa(precioFlex, "Flex")} className='w-full p-5 flex flex-col justify-center items-center'>
               <div className='flex items-center justify-between w-full text-[#ff5c00]'>
                 <h3 className='font-semibold text-[20px]'>Flex</h3>
                 <img src={fh} className='w-[30px] h-[30px] object-cover' alt="" />
@@ -229,8 +231,8 @@ const SelectorTarifa = ({ vuelo, onClose, onSelectTarifa }) => {
                 <span className='text-black'>Reembolso (antes del vuelo)</span>
               </div>
 
-              <div className='w-full my-5'>
-                <span className='w-full bg-[#ff5c00] py-2 px-3 rounded-2xl text-center text-white text-[25px]'>
+              <div className='w-full flex flex-col my-5'>
+                <span className='w-full bg-[#ff5c00] py-2 px-3 rounded-full text-center text-white text-[18px]'>
                   {money} {precioFlex.toLocaleString('es-CO')}
                 </span>
                 <div className='w-full'>

@@ -51,11 +51,11 @@ const Home = ()=>{
                 <div className="w-[80%] h-[8vh] my-4 gap-x-5  bg-white px-4 py-3 flex rounded-[50px]">
                   <label className="flex items-center gap-2 cursor-pointer">
                       <input type="radio" name="tipo-viaje" value="idaYVuelta" checked={tipViaje === "idaYVuelta"} onChange={(e) => dispatch(tipoViaje(e.target.value))} className="w-5 h-5 appearance-none rounded-full border-1 border-black bg-white  checked:bg-white checked:w-3 checked:h-3 checked:border-green-600 checked:ring-4 checked:ring-green-600"/>
-                      <span className={`text-black text-[14px] ${tipViaje == "idaYVuelta" ? "font-bold" : "font-normal"}`}>Ida y vuelta</span>
+                      <span className={`text-black text-[14px] ${tipViaje == "idaYVuelta" ? "font-semibold" : "font-normal"}`}>Ida y vuelta</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                       <input type="radio" name="tipo-viaje" value="ida" checked={tipViaje === "ida"} onChange={(e) => dispatch(tipoViaje(e.target.value))} className="w-5 h-5 appearance-none rounded-full border-1 border-black bg-white  checked:bg-white checked:w-3 checked:h-3 checked:border-green-600 checked:ring-4 checked:ring-green-600"/>
-                      <span className={`text-black text-[14px] ${tipViaje == "ida" ? "font-bold" : "font-normal"}`}>Solo ida</span>
+                      <span className={`text-black text-[14px] ${tipViaje == "ida" ? "font-semibold" : "font-normal"}`}>Solo ida</span>
                   </label>
                 </div>
                 <div className="w-full h-full flex flex-col items-center bg-white gap-y-1.5 rounded-[20px]">

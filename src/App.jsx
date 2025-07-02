@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom'
 import { StandarLayouts } from './layouts/StandarLayouts'
 import Home from './pages/home/Home'
 import { LayoutsEspecial } from './layouts/LayoutsEspecial'
@@ -14,7 +14,8 @@ const router = createBrowserRouter([
   {
     element: <StandarLayouts/>,
     children: [
-      {path: "/", element: <Home />}
+      {path: "/", element: <Home />},
+      { path: "*", element: <Navigate to="/" replace /> }
     ]
   },
   {
@@ -23,7 +24,8 @@ const router = createBrowserRouter([
       {path: "/viaje", element:<Viaje/>},
       {path:"/compra", element:<Compra/>},
       {path: "/compraExitosa", element:<CompraExitosa/>},
-      {path:"/errorCompra", element:<ErrorCompra/>}
+      {path:"/errorCompra", element:<ErrorCompra/>},
+      {path: "*", element: <Navigate to="/" replace /> }
     ]
   }
 ])

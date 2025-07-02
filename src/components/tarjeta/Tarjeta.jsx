@@ -187,7 +187,7 @@ const Tarjeta = ({ continuarCompra, nuemerotarjeta, error=null}) => {
         </div>
 
         <button
-            className="w-full bg-black py-4 text-[20px] font-semibold rounded-2xl text-white"
+            className="w-full bg-black py-4 text-[20px] font-semibold rounded-full text-white"
             onClick={handleSubmit}
         >
             Comprar

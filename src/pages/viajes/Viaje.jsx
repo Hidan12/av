@@ -61,13 +61,10 @@ const Viaje = () => {
 
     if (tipViaje === "idaYVuelta") {
       body.return_date = fechRegreso?.split("T")[0];
-      console.log(body, "lo que se envia");
-      
     }
 
     axios.post(URL, body, { headers: { "Content-Type": "application/json" } })
       .then(({ data }) => {
-        console.log(data.data, "vuelos");
         setVuelosVuelta( v => v = data.data.filter(v => v.tipo_vuelo === 'vuelta'))
         setViajes(data.data);
         setLoad(false);
@@ -86,11 +83,9 @@ const Viaje = () => {
       currency: money,
       max_results: 20,
       };
-      console.log("cambio de vuelo de regreso", body);
       
       axios.post(URL, body, { headers: { "Content-Type": "application/json" } })
       .then(({ data }) => {
-        console.log(data.data, "vuelta");
         setVuelosVuelta(data.data);
         setLoadCambio(false);
       })
@@ -172,7 +167,7 @@ const Viaje = () => {
                 {vuelosIda.length == 0 && !loadCambio &&
                   <div className="w-full flex flex-col mb-10">
                     <span className="font-semibold text-[16px] my-3">No se encontraron vuelos de regreso, por favor cambie fecha de regreso</span>
-                    <button onClick={()=> (setModalFecha(true), setBtnSelect("ida"))} className="px-2 py-4 bg-black text-white rounded-2xl text-[18px]">Cambiar fecha</button>
+                    <button onClick={()=> (setModalFecha(true), setBtnSelect("ida"))} className="px-2 py-4 bg-black text-white rounded-full text-[18px]">Cambiar fecha</button>
                   </div>
                 }
                 {vuelosIda.length == 0 && loadCambio &&
@@ -197,7 +192,7 @@ const Viaje = () => {
                 {vuelosVuelta.length == 0 && !loadCambio &&
                   <div className="w-full flex flex-col mb-10">
                     <span className="font-semibold text-[16px] my-3">No se encontraron vuelos de regreso, por favor cambie fecha de regreso</span>
-                    <button onClick={()=> (setModalFecha(true), setBtnSelect("vuelta"))} className="px-2 py-4 bg-black text-white rounded-2xl text-[18px]">Cambiar fecha</button>
+                    <button onClick={()=> (setModalFecha(true), setBtnSelect("vuelta"))} className="px-2 py-4 bg-black text-white rounded-full text-[18px]">Cambiar fecha</button>
                   </div>
                 }
                 {vuelosVuelta.length == 0 && loadCambio &&
@@ -226,7 +221,7 @@ const Viaje = () => {
                 <div className="w-[90%] space-y-4">
                 <h2 className="text-xl font-semibold">Resumen de tu viaje</h2>
                 <CardVuelo vuelo={vueloIdaSeleccionado} pos={-1} />
-                <button onClick={handlerCompra} className="bg-black text-white w-full py-4 rounded-xl text-lg font-semibold">
+                <button onClick={handlerCompra} className="bg-black text-white w-full py-4 rounded-full text-lg font-semibold">
                   Comprar
                 </button>
               </div>

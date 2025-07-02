@@ -1,5 +1,5 @@
 import { createReducer } from "@reduxjs/toolkit"
-import { cantidadPasajeros, changeDestino, changeOrigin, ClearFecha, fechaPartida, fechaRegreso, setHome, setPrecio, tipoViaje } from "../action/homeAction"
+import { cantidadPasajeros, setHome, changeDestino, changeOrigin, ClearFecha, fechaPartida, fechaRegreso, setPrecio, tipoViaje } from "../action/homeAction"
 import { format } from "date-fns"
 
 const initialState = {

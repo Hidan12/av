@@ -27,3 +27,9 @@
   color: white !important;
   border-radius: 999px !important; /* lo vuelve redondo */
 }
+.react-datepicker__day--today{
+  background-color: black !important;
+  border-radius: 999px !important;
+  color: white !important;
+
+}

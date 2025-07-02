@@ -123,7 +123,7 @@ const Pasajeros = ({ close, back, selectPasajero }) => {
                     </svg>
 
                   </button>
-                  <span className="w-5 text-center font-medium">
+                  <span className="w-[18px] text-center font-medium">
                     {cantidades[key]}
                   </span>
                   <button

@@ -4,6 +4,13 @@ import { useEffect } from "react";
 const CompraExitosa = ()=>{
     const navigate = useNavigate()
 
+    useEffect(()=>{
+    
+    if (!origin || !destino || !fechPartida) {
+      navigate("/")
+    }
+  },[])
+  
     useEffect(() => {
 
 
@@ -22,11 +29,7 @@ const CompraExitosa = ()=>{
             Gracias por volar con Avianca.</span>
 
                 <div className="w-[90%] mt-12">
-                    <a href="http://avianca.com">
-                    <button className="w-full text-white bg-black rounded-2xl py-4">
-                        Volver al inicio
-                    </button>
-                    </a>
+
                 </div>
             </div>
 
